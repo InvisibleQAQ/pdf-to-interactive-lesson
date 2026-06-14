@@ -10,7 +10,7 @@ export const __usageTracker: {
   onCall: ((u: { inputTokens: number; outputTokens: number; durationMs: number }) => void) | null;
 } = { onCall: null };
 
-function useOpenAICompat(): boolean {
+export function useOpenAICompat(): boolean {
   return !!(process.env.OPENAI_BASE_URL && process.env.OPENAI_API_KEY);
 }
 

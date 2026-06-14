@@ -21,7 +21,7 @@ import { generateText } from "ai";
 
 import { createCourse } from "../../lib/create-course";
 import { parseJSON } from "../../lib/utils/json";
-import { getJudgeModel } from "../../lib/utils/judge-model";
+import { getJudgeModel, DEFAULT_JUDGE_MODEL } from "../../lib/utils/judge-model";
 import { DEFAULT_MODEL } from "../../lib/utils/together";
 import { VARIANTS, type Variant } from "./variants";
 
@@ -39,7 +39,7 @@ const iterations = parseInt(arg("iterations") ?? "2", 10);
 const concurrency = parseInt(arg("concurrency") ?? "2", 10);
 const variantFilter = arg("variants")?.split(",").map((s) => s.trim());
 const tag = arg("tag") ?? "shootout";
-const judgeModel = arg("judge") ?? "anthropic/claude-sonnet-4-6";
+const judgeModel = arg("judge") ?? DEFAULT_JUDGE_MODEL;
 const skipJudge = args.includes("--skip-judge");
 
 const togetherApiKey = process.env.TOGETHER_API_KEY;

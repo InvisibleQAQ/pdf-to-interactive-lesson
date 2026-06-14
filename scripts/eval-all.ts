@@ -30,7 +30,7 @@ import { generateText } from "ai";
 import { ocr } from "../lib/ocr";
 import { DEFAULT_MODEL, __usageTracker, getModelPricing } from "../lib/utils/together";
 import { parseJSON } from "../lib/utils/json";
-import { getJudgeModel } from "../lib/utils/judge-model";
+import { getJudgeModel, DEFAULT_JUDGE_MODEL } from "../lib/utils/judge-model";
 import { detectHintAnswerLeak, type HintAnswerLeakResult } from "../lib/hint-answer-leak";
 import { readdirSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { resolve, basename, extname, dirname } from "path";
@@ -48,7 +48,7 @@ const model =
   args.find((a) => a.startsWith("--model="))?.split("=")[1] ?? undefined;
 const judgeModel =
   args.find((a) => a.startsWith("--judge="))?.split("=")[1] ??
-  "anthropic/claude-sonnet-4-6";
+  DEFAULT_JUDGE_MODEL;
 const iterations = parseInt(
   args.find((a) => a.startsWith("--iterations="))?.split("=")[1] ?? "1",
   10

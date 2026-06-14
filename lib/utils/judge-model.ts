@@ -1,6 +1,11 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createTogetherAI } from "@ai-sdk/togetherai";
+import { useOpenAICompat, DEFAULT_MODEL } from "./together";
+
+export const DEFAULT_JUDGE_MODEL = useOpenAICompat()
+  ? DEFAULT_MODEL
+  : "anthropic/claude-sonnet-4-6";
 
 interface JudgeModelOptions {
   judgeModel: string;
@@ -38,6 +43,15 @@ export function getJudgeModel({
       apiKey: key,
       baseURL: base,
     })(modelId);
+  }
+
+  if (useOpenAICompat()) {
+    const key = openaiApiKey ?? process.env.OPENAI_API_KEY;
+    if (!key) {
+      throw new Error("OpenAI-compatible judge requires OPENAI_API_KEY");
+    }
+    const base = openaiBaseUrl ?? process.env.OPENAI_BASE_URL;
+    return createOpenAI({ apiKey: key, baseURL: base })(judgeModel);
   }
 
   if (!togetherApiKey) {
