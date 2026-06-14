@@ -7,7 +7,7 @@ import ora from "ora";
 import { ocr } from "../lib/ocr";
 import { createModules, createCourse } from "../lib/create-course";
 import { generateSlug } from "../lib/utils/slug";
-import { AVAILABLE_MODELS, DEFAULT_MODEL, getModelPricing } from "../lib/utils/together";
+import { AVAILABLE_MODELS, DEFAULT_MODEL, getModelPricing, resolveApiKey } from "../lib/utils/together";
 
 const VERSION = "1.0.0";
 
@@ -156,7 +156,10 @@ ${bold("EXAMPLES")}
   ${cyan("course benchmark")} data/document.md --runs 5
 
 ${bold("ENVIRONMENT")}
-  ${cyan("TOGETHER_API_KEY")}  Required. Your Together AI API key.
+  ${cyan("OPENAI_API_KEY")}     API key (OpenAI-compatible provider)
+  ${cyan("OPENAI_BASE_URL")}   Base URL ending with /v1
+  ${cyan("OPENAI_MODEL")}      Model name for the provider
+  ${cyan("TOGETHER_API_KEY")}  Together AI API key (fallback)
 `);
 }
 
@@ -342,7 +345,7 @@ async function runGenerateModules(content: string, args: CliArgs) {
   try {
     const courseStructure = await createModules({
       content,
-      apiKey: process.env.TOGETHER_API_KEY || "",
+      apiKey: resolveApiKey(),
       model: args.model,
     });
 
@@ -370,7 +373,7 @@ async function runGenerateCourse(content: string, args: CliArgs) {
     // Update spinner text as we progress
     const course = await createCourse({
       content,
-      apiKey: process.env.TOGETHER_API_KEY || "",
+      apiKey: resolveApiKey(),
       model: args.model,
       validateStructure: args.validateStructure,
       validateContent: args.validateContent,
@@ -421,7 +424,7 @@ async function runMultipleTimes(content: string, args: CliArgs) {
         spinner.text = `Run ${run}/${args.runs}: Generating modules`;
         result = await createModules({
           content,
-          apiKey: process.env.TOGETHER_API_KEY || "",
+          apiKey: resolveApiKey(),
           model: args.model,
         });
         result = { title: result.course.title, modules: result.course.module };
@@ -429,7 +432,7 @@ async function runMultipleTimes(content: string, args: CliArgs) {
         spinner.text = `Run ${run}/${args.runs}: Generating course`;
         result = await createCourse({
           content,
-          apiKey: process.env.TOGETHER_API_KEY || "",
+          apiKey: resolveApiKey(),
           model: args.model,
           validateStructure: args.validateStructure,
           validateContent: args.validateContent,
@@ -527,7 +530,7 @@ async function runBenchmark(content: string, args: CliArgs) {
       try {
         const result = await createCourse({
           content,
-          apiKey: process.env.TOGETHER_API_KEY || "",
+          apiKey: resolveApiKey(),
           model: modelName,
           validateStructure: true,
           validateContent: true,
@@ -745,10 +748,11 @@ async function main() {
   }
 
   // Check for API key
-  if (!process.env.TOGETHER_API_KEY) {
-    console.error(`\n${red("✗")} Missing ${cyan("TOGETHER_API_KEY")} environment variable\n`);
-    console.log(`Set it in your ${cyan(".env.local")} file or export it:\n`);
-    console.log(`  ${dim("export TOGETHER_API_KEY=your-api-key")}\n`);
+  if (!process.env.OPENAI_API_KEY && !process.env.TOGETHER_API_KEY) {
+    console.error(`\n${red("✗")} Missing API key environment variable\n`);
+    console.log(`Set ${cyan("OPENAI_API_KEY")} + ${cyan("OPENAI_BASE_URL")} or ${cyan("TOGETHER_API_KEY")} in your ${cyan(".env.local")} file:\n`);
+    console.log(`  ${dim("export OPENAI_API_KEY=your-api-key")}`);
+    console.log(`  ${dim("export OPENAI_BASE_URL=https://your-provider.com/v1")}\n`);
     process.exit(1);
   }
 

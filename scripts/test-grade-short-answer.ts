@@ -12,8 +12,10 @@
  *   tsx scripts/test-grade-short-answer.ts --url http://localhost:3000
  */
 
+import { resolveApiKey } from "../lib/utils/together";
+
 const DEFAULT_URL = "http://localhost:3000";
-const DEFAULT_API_KEY = process.env.TOGETHER_API_KEY || "";
+const DEFAULT_API_KEY = resolveApiKey();
 
 interface TestCase {
   name: string;
@@ -155,7 +157,7 @@ async function main() {
 Usage: tsx scripts/test-grade-short-answer.ts [options]
 
 Options:
-  --api-key <key>    Together AI API key (default: TOGETHER_API_KEY env var)
+  --api-key <key>    API key (default: OPENAI_API_KEY or TOGETHER_API_KEY env var)
   --url <url>        Base URL for the API (default: http://localhost:3000)
   --help, -h         Show this help message
 
@@ -170,7 +172,7 @@ Examples:
 
   if (!apiKey) {
     console.error("❌ Error: API key is required");
-    console.error("   Set TOGETHER_API_KEY environment variable or use --api-key flag");
+    console.error("   Set OPENAI_API_KEY or TOGETHER_API_KEY environment variable or use --api-key flag");
     process.exit(1);
   }
 

@@ -44,7 +44,8 @@ const skipJudge = args.includes("--skip-judge");
 
 const togetherApiKey = process.env.TOGETHER_API_KEY;
 const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
-const openrouterApiKey = process.env.OPENROUTER_API_KEY;
+const openaiApiKey = process.env.OPENAI_API_KEY;
+const openaiBaseUrl = process.env.OPENAI_BASE_URL;
 
 if (!togetherApiKey) {
   console.error("TOGETHER_API_KEY required");
@@ -81,7 +82,8 @@ async function judge(prompt: string): Promise<string> {
       judgeModel,
       togetherApiKey,
       anthropicApiKey,
-      openrouterApiKey,
+      openaiApiKey,
+      openaiBaseUrl,
     }),
     temperature: 0,
     maxOutputTokens: 1024,

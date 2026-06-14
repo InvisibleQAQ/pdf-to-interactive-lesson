@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { generateText } from "ai";
-import { createTogetherClient, GRADER_MODEL } from "@/lib/utils/together";
+import { createTogetherClient, GRADER_MODEL, resolveApiKey } from "@/lib/utils/together";
 import { parseJSON } from "@/lib/utils/json";
 import { debugLog } from "@/lib/utils/debug";
 import {
@@ -14,7 +14,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const INVALID_API_KEY_MESSAGE =
-  "Invalid Together AI API key. Update the key in settings and try again.";
+  "Invalid API key. Update the key in settings and try again.";
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error) return error.message;
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
   try {
     // Get API key from headers, fall back to server key for free users
     const userApiKey = request.headers.get("X-Together-API-Key");
-    const apiKey = userApiKey || process.env.TOGETHER_API_KEY;
+    const apiKey = userApiKey || resolveApiKey();
     if (!apiKey) {
       debugLog.error("[API] No API key available (neither user nor server)");
       return Response.json(

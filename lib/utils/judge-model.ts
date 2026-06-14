@@ -6,50 +6,37 @@ interface JudgeModelOptions {
   judgeModel: string;
   togetherApiKey?: string;
   anthropicApiKey?: string;
-  openrouterApiKey?: string;
-  ollamaBaseUrl?: string;
+  openaiApiKey?: string;
+  openaiBaseUrl?: string;
 }
 
 export function getJudgeModel({
   judgeModel,
   togetherApiKey,
   anthropicApiKey,
-  openrouterApiKey,
-  ollamaBaseUrl,
+  openaiApiKey,
+  openaiBaseUrl,
 }: JudgeModelOptions) {
   if (judgeModel.startsWith("anthropic/")) {
     const modelId = judgeModel.replace("anthropic/", "");
     if (anthropicApiKey) {
       return createAnthropic({ apiKey: anthropicApiKey })(modelId);
     }
-    if (openrouterApiKey) {
-      return createOpenAI({
-        apiKey: openrouterApiKey,
-        baseURL: "https://openrouter.ai/api/v1",
-      })(judgeModel);
-    }
     throw new Error(
-      "anthropic/ judge requires ANTHROPIC_API_KEY or OPENROUTER_API_KEY"
+      "anthropic/ judge requires ANTHROPIC_API_KEY"
     );
   }
 
-  if (judgeModel.startsWith("openrouter/")) {
-    if (!openrouterApiKey) {
-      throw new Error("openrouter/ judge requires OPENROUTER_API_KEY");
+  if (judgeModel.startsWith("openai/")) {
+    const modelId = judgeModel.replace("openai/", "");
+    const key = openaiApiKey ?? process.env.OPENAI_API_KEY;
+    const base = openaiBaseUrl ?? process.env.OPENAI_BASE_URL;
+    if (!key) {
+      throw new Error("openai/ judge requires OPENAI_API_KEY");
     }
-    const modelId = judgeModel.replace("openrouter/", "");
     return createOpenAI({
-      apiKey: openrouterApiKey,
-      baseURL: "https://openrouter.ai/api/v1",
-    })(modelId);
-  }
-
-  if (judgeModel.startsWith("ollama/")) {
-    const modelId = judgeModel.replace("ollama/", "");
-    const baseURL = `${(ollamaBaseUrl ?? "http://127.0.0.1:11434").replace(/\/$/, "")}/v1`;
-    return createOpenAI({
-      apiKey: "ollama",
-      baseURL,
+      apiKey: key,
+      baseURL: base,
     })(modelId);
   }
 

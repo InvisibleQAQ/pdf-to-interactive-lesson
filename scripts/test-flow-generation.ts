@@ -7,12 +7,13 @@
  */
 
 import { createLessons } from "../lib/create-lesson";
+import { resolveApiKey } from "../lib/utils/together";
 import type { Module } from "../lib/types";
 
-const API_KEY = process.env.TOGETHER_API_KEY || "";
+const API_KEY = resolveApiKey();
 
 if (!API_KEY) {
-  console.error("❌ Please set TOGETHER_API_KEY environment variable");
+  console.error("❌ Please set OPENAI_API_KEY or TOGETHER_API_KEY environment variable");
   process.exit(1);
 }
 

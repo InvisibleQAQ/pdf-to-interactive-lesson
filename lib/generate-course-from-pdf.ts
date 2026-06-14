@@ -1,6 +1,7 @@
 import { writeFile, unlink } from "fs/promises";
 import { existsSync, readFileSync } from "fs";
 import { ocr } from "./ocr";
+import { resolveApiKey } from "./utils/together";
 import { createCourse } from "./create-course";
 import type { CourseOutput } from "./create-course";
 
@@ -78,10 +79,10 @@ export async function generateCourseFromPdf(
   let isTemp = false;
 
   try {
-    const apiKey = options.apiKey || process.env.TOGETHER_API_KEY || "";
+    const apiKey = options.apiKey || resolveApiKey();
 
     if (!apiKey) {
-      throw new Error("Together AI API key is required. Please add your API key in the app settings.");
+      throw new Error("API key is required. Set OPENAI_API_KEY or TOGETHER_API_KEY in your environment.");
     }
 
     if (!file && !url) {

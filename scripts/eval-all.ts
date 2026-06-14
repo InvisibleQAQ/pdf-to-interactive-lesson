@@ -76,9 +76,9 @@ if (!apiKey) {
   process.exit(1);
 }
 
-const openrouterApiKey = process.env.OPENROUTER_API_KEY;
 const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
-const ollamaBaseUrl = process.env.OLLAMA_BASE_URL;
+const openaiApiKey = process.env.OPENAI_API_KEY;
+const openaiBaseUrl = process.env.OPENAI_BASE_URL;
 
 // ── Generation token accounting (for cost) ──────────────
 // Must be set before createCourse builds its Together client, which only wraps
@@ -158,8 +158,8 @@ async function judge(prompt: string): Promise<string> {
       judgeModel,
       togetherApiKey: apiKey,
       anthropicApiKey,
-      openrouterApiKey,
-      ollamaBaseUrl,
+      openaiApiKey,
+      openaiBaseUrl,
     }),
     temperature: 0,
     maxOutputTokens: 1024,

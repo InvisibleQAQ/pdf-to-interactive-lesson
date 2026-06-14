@@ -1,4 +1,5 @@
 import { createTogetherAI } from "@ai-sdk/togetherai";
+import { createOpenAI } from "@ai-sdk/openai";
 
 /**
  * Optional global usage tracker. When set, every LanguageModel.doGenerate call
@@ -9,11 +10,20 @@ export const __usageTracker: {
   onCall: ((u: { inputTokens: number; outputTokens: number; durationMs: number }) => void) | null;
 } = { onCall: null };
 
+function useOpenAICompat(): boolean {
+  return !!(process.env.OPENAI_BASE_URL && process.env.OPENAI_API_KEY);
+}
+
 /**
- * Create a Together AI client with the provided API key
+ * Create an AI client with the provided API key.
+ * When OPENAI_BASE_URL + OPENAI_API_KEY are set, uses an OpenAI-compatible
+ * provider instead of Together AI.
  */
 export function createTogetherClient(apiKey: string) {
-  const inner = createTogetherAI({ apiKey });
+  const inner = useOpenAICompat()
+    ? createOpenAI({ apiKey, baseURL: process.env.OPENAI_BASE_URL })
+    : createTogetherAI({ apiKey });
+
   return (modelId: string) => {
     const model = inner(modelId);
     if (!__usageTracker.onCall) return model;
@@ -39,6 +49,8 @@ export function createTogetherClient(apiKey: string) {
 }
 
 export function getTogetherProviderOptions(model: string) {
+  if (useOpenAICompat()) return undefined;
+
   if (
     model === "moonshotai/Kimi-K2.5" ||
     model === "moonshotai/Kimi-K2.6" ||
@@ -62,12 +74,20 @@ export function getTogetherProviderOptions(model: string) {
  * 15 serverless Together AI models — gpt-oss-120b was 9× faster with equal or
  * better lesson quality on the same input. See docs/course-generation-speedup.md.
  */
-export const DEFAULT_MODEL = "openai/gpt-oss-120b";
+export const DEFAULT_MODEL = process.env.OPENAI_MODEL || "openai/gpt-oss-120b";
 
 /**
  * Model used for grading short-answer responses
  */
-export const GRADER_MODEL = "openai/gpt-oss-20b";
+export const GRADER_MODEL = process.env.OPENAI_GRADER_MODEL || process.env.OPENAI_MODEL || "openai/gpt-oss-20b";
+
+/**
+ * Resolve the API key: prefer OPENAI_API_KEY when in OpenAI-compatible mode,
+ * otherwise TOGETHER_API_KEY.
+ */
+export function resolveApiKey(override?: string | null): string {
+  return override || process.env.OPENAI_API_KEY || process.env.TOGETHER_API_KEY || "";
+}
 
 /**
  * Single source of truth for model configuration

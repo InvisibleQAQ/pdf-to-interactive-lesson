@@ -6,7 +6,7 @@
  * question/answer pair against the source content.
  *
  * Usage:
- *   TOGETHER_API_KEY=... OPENROUTER_API_KEY=... bun scripts/benchmark-answers.ts [--tag=<name>] [--model=<model>] [--judge=<model>] [--types=<types>] [file1 file2...]
+ *   TOGETHER_API_KEY=... bun scripts/benchmark-answers.ts [--tag=<name>] [--model=<model>] [--judge=<model>] [--types=<types>] [file1 file2...]
  *
  * If no files given, runs all PDFs in data/pdfs/.
  * --model   sets the generation model (default: MiniMaxAI/MiniMax-M2.7)
@@ -49,9 +49,9 @@ if (!apiKey) {
   process.exit(1);
 }
 
-const openrouterApiKey = process.env.OPENROUTER_API_KEY;
 const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
-const ollamaBaseUrl = process.env.OLLAMA_BASE_URL;
+const openaiApiKey = process.env.OPENAI_API_KEY;
+const openaiBaseUrl = process.env.OPENAI_BASE_URL;
 
 async function judge(prompt: string): Promise<string> {
   const r = await generateText({
@@ -59,8 +59,8 @@ async function judge(prompt: string): Promise<string> {
       judgeModel,
       togetherApiKey: apiKey,
       anthropicApiKey,
-      openrouterApiKey,
-      ollamaBaseUrl,
+      openaiApiKey,
+      openaiBaseUrl,
     }),
     temperature: 0,
     maxOutputTokens: 1024,
